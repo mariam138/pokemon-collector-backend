@@ -2,6 +2,7 @@ package com.example.pokemon.controllers;
 
 import com.example.pokemon.DTOs.UserResponse;
 import com.example.pokemon.services.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,15 @@ public class UserController {
     public List<UserResponse> getAllUsers() {
         return userService.findAllUsers();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findUserById(id));
+    }
+
+
+
+
 
 
 
