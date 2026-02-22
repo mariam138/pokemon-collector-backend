@@ -23,6 +23,9 @@ public class User {
     )
     private List<Pokemon> favouritePokemons;
 
+    public User() {
+    }
+
     public Long getId() {
         return id;
     }
