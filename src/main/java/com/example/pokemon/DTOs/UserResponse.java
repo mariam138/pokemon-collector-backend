@@ -22,5 +22,4 @@ public class UserResponse {
     public String getName() {
         return name;
     }
-
 }
