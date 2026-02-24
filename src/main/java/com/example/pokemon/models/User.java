@@ -2,6 +2,8 @@ package com.example.pokemon.models;
 
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "Users")
@@ -21,7 +23,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "pokemon_id")
     )
-    private List<Pokemon> favouritePokemons;
+    private List<Pokemon> favouritePokemons = new ArrayList<>();
 
     public User() {
     }
