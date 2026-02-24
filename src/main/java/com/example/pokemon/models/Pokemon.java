@@ -2,6 +2,7 @@ package com.example.pokemon.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
+
 import java.util.ArrayList;
 import java.util.List;
 
