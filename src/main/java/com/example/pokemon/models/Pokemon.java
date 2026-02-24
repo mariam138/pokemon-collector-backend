@@ -29,10 +29,6 @@ public class Pokemon {
     public Pokemon() {
     }
 
-    public Pokemon(Long id) {
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }
