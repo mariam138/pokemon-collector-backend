@@ -4,12 +4,12 @@ import jakarta.validation.constraints.*;
 
 public class UpdateUserRequest {
 
+    @NotBlank(message = "Name is required")
     @Size(min = 3, max = 100, message =
             "Name must be between 3 and 100 char long")
     private String name;
 
-    @Email(message = "Email must be valid")
-    private String email;
+    public UpdateUserRequest() {}
 
     public String getName() {
         return name;
@@ -19,11 +19,4 @@ public class UpdateUserRequest {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }
