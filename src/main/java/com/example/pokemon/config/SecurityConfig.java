@@ -17,13 +17,13 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/error", "/login/**", "/oauth2/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
 
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> {
@@ -32,11 +32,10 @@ public class SecurityConfig {
                             } else {
                                 res.sendRedirect("https://mark-grayson1.github.io/Pokemon-Collector-Front-End/");
                             }
-                        })
-                )
+                        }))
                 .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("https://mark-grayson1.github.io/Pokemon-Collector-Front-End/#/dashboard", true)
-                )
+                        .defaultSuccessUrl("https://mark-grayson1.github.io/Pokemon-Collector-Front-End/dashboard",
+                                true))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
@@ -44,8 +43,7 @@ public class SecurityConfig {
                         })
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID", "SESSION")
-                )
+                        .deleteCookies("JSESSIONID", "SESSION"))
                 .build();
     }
 
