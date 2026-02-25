@@ -25,7 +25,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("http://localhost:5173", true)
+                        .defaultSuccessUrl("https://mark-grayson1.github.io/Pokemon-Collector-Front-End/", true)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
