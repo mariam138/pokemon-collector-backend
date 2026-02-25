@@ -20,14 +20,11 @@ public class Pokemon {
     @NotBlank
     @Column(name = "pokemon_name", nullable = false)
     private String name;
-
     private String ability;
-
     private Long baseExperience;
     private Long height;
     private Long weight;
     private String typeOne;
-
     private String typeTwo;
 
     @JsonIgnore
@@ -41,8 +38,10 @@ public class Pokemon {
         this.name = name;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return Id;
+    }
+    public void setId(Long id) {this.id = id;}
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

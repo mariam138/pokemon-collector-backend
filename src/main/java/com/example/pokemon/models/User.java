@@ -70,5 +70,3 @@ public class User {
         this.favouritePokemons = favouritePokemons;
     }
 }
-
-
