@@ -35,7 +35,7 @@ public class SecurityConfig {
                         })
                 )
                 .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("https://mark-grayson1.github.io/Pokemon-Collector-Front-End/dashboard", true)
+                        .defaultSuccessUrl("https://mark-grayson1.github.io/Pokemon-Collector-Front-End/#/dashboard", true)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
