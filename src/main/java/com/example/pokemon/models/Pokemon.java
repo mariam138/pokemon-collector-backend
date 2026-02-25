@@ -1,20 +1,25 @@
 package com.example.pokemon.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "Pokemons")
+@Entity
+@Table(name = "pokemons")
 public class Pokemon {
 
     @Id
-    @GeneratedValue
-    private Long id;
     @Positive
-    private Long pokemonId;
-    private String pokemonName;
+    @Column(name = "pokemon_id", nullable = false)
+    private Long id;
+
+    @NotBlank
+    @Column(name = "pokemon_name", nullable = false)
+    private String name;
     private String ability;
     private Long baseExperience;
     private Long height;
@@ -22,91 +27,43 @@ public class Pokemon {
     private String typeOne;
     private String typeTwo;
 
-
+    @JsonIgnore
     @ManyToMany(mappedBy = "favouritePokemons")
     private List<User> users = new ArrayList<>();
 
+    public Pokemon() {}
 
-    public Pokemon() {
+    public Pokemon(Long id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public Long getId() {
-        return id;
+        return Id;
     }
+    public void setId(Long id) {this.id = id;}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public Long getPokemonId() {
-        return pokemonId;
-    }
+    public String getAbility() { return ability; }
+    public void setAbility(String ability) { this.ability = ability; }
 
-    public void setPokemonId(Long pokemonId) {
-        this.pokemonId = pokemonId;
-    }
+    public Long getBaseExperience() { return baseExperience; }
+    public void setBaseExperience(Long baseExperience) { this.baseExperience = baseExperience; }
 
-    public String getPokemonName() {
-        return pokemonName;
-    }
+    public Long getHeight() { return height; }
+    public void setHeight(Long height) { this.height = height; }
 
-    public void setPokemonName(String pokemonName) {
-        this.pokemonName = pokemonName;
-    }
+    public Long getWeight() { return weight; }
+    public void setWeight(Long weight) { this.weight = weight; }
 
-    public String getAbility() {
-        return ability;
-    }
+    public String getTypeOne() { return typeOne; }
+    public void setTypeOne(String typeOne) { this.typeOne = typeOne; }
 
-    public void setAbility(String ability) {
-        this.ability = ability;
-    }
+    public String getTypeTwo() { return typeTwo; }
+    public void setTypeTwo(String typeTwo) { this.typeTwo = typeTwo; }
 
-    public Long getBaseExperience() {
-        return baseExperience;
-    }
-
-    public void setBaseExperience(Long baseExperience) {
-        this.baseExperience = baseExperience;
-    }
-
-    public Long getHeight() {
-        return height;
-    }
-
-    public void setHeight(Long height) {
-        this.height = height;
-    }
-
-    public Long getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Long weight) {
-        this.weight = weight;
-    }
-
-    public String getTypeOne() {
-        return typeOne;
-    }
-
-    public void setTypeOne(String typeOne) {
-        this.typeOne = typeOne;
-    }
-
-    public String getTypeTwo() {
-        return typeTwo;
-    }
-
-    public void setTypeTwo(String typeTwo) {
-        this.typeTwo = typeTwo;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
+    public List<User> getUsers() { return users; }
+    public void setUsers(List<User> users) { this.users = users; }
 }

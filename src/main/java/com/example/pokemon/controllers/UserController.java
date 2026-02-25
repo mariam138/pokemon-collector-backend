@@ -1,11 +1,13 @@
 package com.example.pokemon.controllers;
 
-import com.example.pokemon.DTOs.CreateUserRequest;
 import com.example.pokemon.DTOs.UpdateUserRequest;
 import com.example.pokemon.DTOs.UserResponse;
 import com.example.pokemon.services.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,35 +17,68 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @GetMapping
-    public List<UserResponse> getAllUsers() {
-        return userService.findAllUsers();
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe(@AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(userService.getOrCreateFromOAuth(principal));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.findUserById(id));
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateMe(
+            @AuthenticationPrincipal OAuth2User principal,
+            @Valid @RequestBody UpdateUserRequest request
+    ) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(userService.updateMyName(principal, request));
     }
 
-    @PostMapping
-    public UserResponse createUser(@Validated @RequestBody CreateUserRequest newUserRequest) {
-        return userService.addUser(newUserRequest);
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(@AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        userService.deleteMe(principal);
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
-                                                   @Validated @RequestBody UpdateUserRequest request) {
-        UserResponse updatedUser = userService.updateUser(id, request);
-        return ResponseEntity.ok(updatedUser);
+    @GetMapping("/me/favourites")
+    public ResponseEntity<List<Long>> getMyFavourites(@AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(userService.getMyFavouritePokemonIds(principal));
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    @PostMapping("/me/favourites/{pokemonId}")
+    public ResponseEntity<Void> addMyFavourite(
+            @AuthenticationPrincipal OAuth2User principal,
+            @PathVariable Long pokemonId
+    ) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        userService.addMyFavouritePokemon(principal, pokemonId);
+        return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/me/favourites/{pokemonId}")
+    public ResponseEntity<Void> removeMyFavourite(
+            @AuthenticationPrincipal OAuth2User principal,
+            @PathVariable Long pokemonId
+    ) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        userService.removeMyFavouritePokemon(principal, pokemonId);
+        return ResponseEntity.noContent().build();
+    }
 }

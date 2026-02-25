@@ -1,97 +1,123 @@
 package com.example.pokemon.services;
 
-import com.example.pokemon.DTOs.CreateUserRequest;
 import com.example.pokemon.DTOs.UpdateUserRequest;
 import com.example.pokemon.DTOs.UserResponse;
+import com.example.pokemon.models.Pokemon;
 import com.example.pokemon.models.User;
+import com.example.pokemon.repositories.PokemonRepository;
 import com.example.pokemon.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import com.example.pokemon.models.Pokemon;
-import com.example.pokemon.repositories.PokemonRepository;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
 @Service
 public class UserService {
+
     private final UserRepository userRepo;
     private final PokemonRepository pokemonRepo;
-//    private final PasswordEncoder passwordEncoder;
-
-    // Constructor injection
-//    public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder) {
-//        this.userRepo = userRepo;
-//        this.passwordEncoder = passwordEncoder;
-//    }
 
     public UserService(UserRepository userRepo, PokemonRepository pokemonRepo) {
         this.userRepo = userRepo;
         this.pokemonRepo = pokemonRepo;
     }
-    // Helper method to convert a User entity into a UserResponse DTO
+
     private UserResponse mapToResponse(User user) {
         return new UserResponse(user.getId(), user.getName(), user.getEmail());
     }
 
-    // Retrieve all users
-    public List<UserResponse> findAllUsers() {
-        return userRepo.findAll().stream().map(this::mapToResponse).toList();
+    private User getMe(OAuth2User principal) {
+        if (principal == null) {
+            throw new IllegalStateException("Not authenticated.");
+        }
+
+        String email = principal.getAttribute("email");
+        if (email == null || email.isBlank()) {
+            throw new IllegalStateException("OAuth login did not provide an email address.");
+        }
+
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found for email: " + email));
     }
 
-    //READ on GET request
-    public UserResponse findUserById(Long id) {
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("User with ID: %d, was not found", id)
-                ));
+    public UserResponse getOrCreateFromOAuth(OAuth2User principal) {
+        if (principal == null) {
+            throw new IllegalStateException("Not authenticated.");
+        }
+
+        String email = principal.getAttribute("email");
+        String name = principal.getAttribute("name");
+
+        if (email == null || email.isBlank()) {
+            throw new IllegalStateException("OAuth login did not provide an email address.");
+        }
+
+        User user = userRepo.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setName((name != null && !name.isBlank()) ? name : "Unknown");
+            return userRepo.save(newUser);
+        });
 
         return mapToResponse(user);
     }
 
-    // CREATE ON POST Request
-    public UserResponse addUser(CreateUserRequest newUserRequest) {
-        if (userRepo.existsByEmail(newUserRequest.getEmail())) {
-            throw new IllegalArgumentException(
-                    "Email already in use: " + newUserRequest.getEmail()
-            );
+    public UserResponse updateMyName(OAuth2User principal, UpdateUserRequest request) {
+        if (request == null || request.getName() == null || request.getName().isBlank()) {
+            throw new IllegalArgumentException("Name must not be blank.");
         }
 
-        User user = new User();
-        user.setName(newUserRequest.getName());
-        user.setEmail(newUserRequest.getEmail());
-//        user.setPassword(passwordEncoder.encode(newUserRequest.getPassword()));
-        user.setPassword(newUserRequest.getPassword());
-
-        User saved = userRepo.save(user);
-        return mapToResponse(saved);
+        User user = getMe(principal);
+        user.setName(request.getName().trim());
+        return mapToResponse(userRepo.save(user));
     }
 
-    public UserResponse updateUser(Long id, UpdateUserRequest request) {
-        if(request.getEmail() == null && request.getName() == null) {
-            throw new IllegalArgumentException("Either email or name need to " +
-                    "be updated");
-        }
-
-        User user =
-                userRepo.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("User with ID: %d was not found", id)));
-        if(!(request.getName() == null) && !request.getName().isBlank()) {
-            user.setName(request.getName());
-        }
-        if(!(request.getEmail() == null) && !request.getEmail().isBlank()) {
-            user.setEmail(request.getEmail());
-        }
-        User updated = userRepo.save(user);
-        return mapToResponse(updated);
+    public void deleteMe(OAuth2User principal) {
+        User user = getMe(principal);
+        userRepo.delete(user);
     }
 
-    //    DELETE
-    public void deleteUser(Long id) {
-        if(!userRepo.existsById(id)) {
-            throw new EntityNotFoundException(String.format(
-                    "User with ID: %d, was not found", id));
-        }
-        userRepo.deleteById(id);
+    public List<Long> getMyFavouritePokemonIds(OAuth2User principal) {
+        User user = getMe(principal);
+        return user.getFavouritePokemons()
+                .stream()
+                .map(Pokemon::getId)
+                .toList();
     }
 
+    public void addMyFavouritePokemon(OAuth2User principal, Long pokemonId) {
+        if (pokemonId == null || pokemonId <= 0) {
+            throw new IllegalArgumentException("pokemonId must be positive.");
+        }
+
+        User user = getMe(principal);
+
+        Pokemon pokemon = pokemonRepo.findById(pokemonId)
+                .orElseThrow(() -> new EntityNotFoundException("Pokemon not found: " + pokemonId));
+
+        boolean alreadyFavourite = user.getFavouritePokemons()
+                .stream()
+                .anyMatch(p -> p.getId().equals(pokemonId));
+
+        if (!alreadyFavourite) {
+            user.getFavouritePokemons().add(pokemon);
+            userRepo.save(user);
+        }
+    }
+
+    public void removeMyFavouritePokemon(OAuth2User principal, Long pokemonId) {
+        if (pokemonId == null || pokemonId <= 0) {
+            throw new IllegalArgumentException("pokemonId must be positive.");
+        }
+
+        User user = getMe(principal);
+
+        boolean removed = user.getFavouritePokemons()
+                .removeIf(p -> p.getId().equals(pokemonId));
+
+        if (removed) {
+            userRepo.save(user);
+        }
+    }
 }

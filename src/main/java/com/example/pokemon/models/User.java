@@ -1,28 +1,42 @@
 package com.example.pokemon.models;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "Users")
+@Entity
+@Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
+    @NotBlank
+    @Column(name = "name")
     private String name;
+
+    @NotBlank
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    private String password;
-
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "user_favourite_pokemons",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "pokemon_id")
+            joinColumns = @JoinColumn(
+                    name = "user_id",
+                    referencedColumnName = "user_id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "pokemon_id",
+                    referencedColumnName = "pokemon_id"
+            )
     )
+
     private List<Pokemon> favouritePokemons = new ArrayList<>();
 
     public User() {
@@ -30,10 +44,6 @@ public class User {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -50,14 +60,6 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public List<Pokemon> getFavouritePokemons() {
