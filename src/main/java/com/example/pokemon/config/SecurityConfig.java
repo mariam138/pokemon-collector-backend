@@ -24,9 +24,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("http://localhost:5173/", true)
+                        .defaultSuccessUrl("http://localhost:5174/", true)
                 )
-                .logout(logout -> logout.logoutSuccessUrl("http://localhost:5173/"))
+                .logout(logout -> logout.logoutSuccessUrl("http://localhost:5174/"))
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5174/"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
