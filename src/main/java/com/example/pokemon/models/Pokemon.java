@@ -106,7 +106,7 @@ public class Pokemon {
         return users;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
+//    public void setUsers(List<User> users) {
+//        this.users = users;
+//    }
 }
