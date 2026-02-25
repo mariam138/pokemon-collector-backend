@@ -44,7 +44,7 @@ public class SecurityConfig {
                         })
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "SESSION")
                 )
                 .build();
     }
@@ -53,7 +53,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("https://mark-grayson1.github.io"));
+        config.setAllowedOrigins(List.of("http://localhost:5173",
+                "https://mark-grayson1.github.io"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
