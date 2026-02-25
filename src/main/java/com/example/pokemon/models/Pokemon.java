@@ -39,7 +39,7 @@ public class Pokemon {
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
     public void setId(Long id) {this.id = id;}
 
